@@ -2,10 +2,10 @@
   "name": "weblily",
   "version": "1.0.0",
   "description": "",
-  "main": "build/src/index.js",
+  "main": "dist/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
-    "/build/src"
+    "/dist/src"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
