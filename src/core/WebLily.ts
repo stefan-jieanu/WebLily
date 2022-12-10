@@ -1,5 +1,9 @@
+import {LlyGL, gl} from '../gl/LlyGL';
+
 export class WebLily {
-  public static instance: WebLily;
+  public static instance: WebLily | null;
+
+  private _canvas: HTMLCanvasElement;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -7,22 +11,33 @@ export class WebLily {
 
   public constructor(canvas: HTMLCanvasElement) {
     if (WebLily.instance) throw Error('Multiple application instances');
+    WebLily.instance = this;
+    this._canvas = canvas;
 
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      throw new Error('No html canvas element.');
-    }
+    // Init WebGL
+    if (!LlyGL.init(this._canvas))
+      throw new Error('Could not initialize WebGL');
+  }
 
-    // WebGL rendering context
-    const gl = canvas.getContext('webgl');
+  public start(): void {
+    console.debug('Started weblily');
 
-    if (!gl) {
-      throw new Error('Unable to initialize WebGL.');
-    }
+    // Start the main loop of the program
+    this.loop();
+  }
 
-    // Clear color
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+  public stop(): void {
+    console.debug('Stopped weblily');
 
+    // Destroy the app instance
+    WebLily.instance = null;
+  }
+
+  private loop(): void {
+    requestAnimationFrame(this.loop.bind(this));
+  }
+
+  private drawTriangle(): void {
     // A user-defined function to create and compile shaders
     const initShader = (
       type: 'VERTEX_SHADER' | 'FRAGMENT_SHADER',
