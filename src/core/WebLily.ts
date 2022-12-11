@@ -1,9 +1,13 @@
 import {LlyGL, gl} from '../gl/LlyGL';
+import {Shader} from '../gl/Shader';
+import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 
 export class WebLily {
   public static instance: WebLily | null;
 
   private _canvas: HTMLCanvasElement;
+  private _shader: Shader;
+  private _buffer: WebGLBuffer;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -17,6 +21,34 @@ export class WebLily {
     // Init WebGL
     if (!LlyGL.init(this._canvas))
       throw new Error('Could not initialize WebGL');
+
+    // Resize the canvas to the right size
+    this.resize();
+
+    // Create a shader
+    this._shader = new Shader(
+      'basic',
+      vertexShaderSource,
+      fragmentShaderSource
+    );
+    this._shader.use();
+
+    // Create a buffer
+    this._buffer = gl.createBuffer()!;
+
+    // eslint-disable-next-line
+    let vertices = [
+      0, 0, 0,
+      0, 0.5, 0,
+      0.5, 0.5, 0
+    ];
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
+
+    // Set buffer data for shader
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
   }
 
   public start(): void {
@@ -34,95 +66,25 @@ export class WebLily {
   }
 
   private loop(): void {
+    gl.clearColor(0, 0.2, 0.4, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
     requestAnimationFrame(this.loop.bind(this));
   }
 
-  private drawTriangle(): void {
-    // A user-defined function to create and compile shaders
-    const initShader = (
-      type: 'VERTEX_SHADER' | 'FRAGMENT_SHADER',
-      source: string
-    ) => {
-      const shader = gl.createShader(gl[type]);
+  private resize(): void {
+    // Resize canvas on the DOM
+    const canvasWrapper = this._canvas.parentElement!;
+    this._canvas.width = canvasWrapper.offsetWidth;
+    this._canvas.height = (this._canvas.width * 9) / 16;
 
-      if (!shader) {
-        throw new Error('Unable to create a shader.');
-      }
+    // Resize WebGL context viewport
+    gl.viewport(0, 0, this._canvas.width, (this._canvas.width * 9) / 16);
+  }
 
-      gl.shaderSource(shader, source);
-
-      gl.compileShader(shader);
-
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        throw new Error(
-          `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
-            shader
-          )}`
-        );
-      }
-
-      return shader;
-    };
-
-    // Vertex shader
-    const vertexShader = initShader(
-      'VERTEX_SHADER',
-      `
-      attribute vec4 a_position;
-  
-      void main() {
-        gl_Position = a_position;
-      }
-      `
-    );
-
-    // Fragment shader
-    const fragmentShader = initShader(
-      'FRAGMENT_SHADER',
-      `
-      void main() {
-        gl_FragColor = vec4(0, 1, 0, 1);
-      }
-      `
-    );
-
-    // WebGL program
-    const program = gl.createProgram();
-
-    if (!program) {
-      throw new Error('Unable to create the program.');
-    }
-
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(
-        `Unable to link the shaders: ${gl.getProgramInfoLog(program)}`
-      );
-    }
-
-    gl.useProgram(program);
-
-    // Vertext buffer
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-    const positions = [0, 1, 0.866, -0.5, -0.866, -0.5];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    const index = gl.getAttribLocation(program, 'a_position');
-    const size = 2;
-    const type = gl.FLOAT;
-    const normalized = false;
-    const stride = 0;
-    const offset = 0;
-    gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
-    gl.enableVertexAttribArray(index);
-
-    // Draw the scene
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  public resizeCallback(): void {
+    this.resize();
   }
 }
