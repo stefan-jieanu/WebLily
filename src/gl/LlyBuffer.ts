@@ -30,7 +30,7 @@ export class AttributeInfo {
  * Wrapper for a WebGL buffer.
  */
 export class LlyBuffer {
-  private _elementSize: number;
+  private _singleElementCount: number;
   private _stride: number;
   private _buffer: WebGLBuffer;
   private _hasAttributes = false;
@@ -38,7 +38,6 @@ export class LlyBuffer {
 
   private _targetBuffferType: number;
   private _dataType: number;
-  private _mode: number;
   private _drawType: number;
   private _typeSize: number;
 
@@ -47,26 +46,23 @@ export class LlyBuffer {
 
   /**
    * Creates a new buffer.
-   * @param elementSize The size of each element in this buffer.
+   * @param singleElementCount The count of the number of elements per vertex
    * @param dataType The data type of this buffer. Default: gl.FLOAT
    * @param targetBufferType The buffer target type. Default: gl.ARRAY_BUFFER
-   * @param mode The drawing mode of this buffer. Default: gl.TRIANGLES
-   * @param mode The drawing type for this buffer. Defualt: gl.STATIC_DRAW
+   * @param drawType The drawing type for this buffer. Defualt: gl.STATIC_DRAW
    */
   public constructor(
-    elementSize: number,
+    singleElementCount: number,
     data: number[],
     dataType: number = gl.FLOAT,
     targetBufferType: number = gl.ARRAY_BUFFER,
-    mode: number = gl.TRIANGLES,
     drawType: number = gl.STATIC_DRAW,
     normalized = false
   ) {
-    this._elementSize = elementSize;
+    this._singleElementCount = singleElementCount;
     this._data = data;
     this._dataType = dataType;
     this._targetBuffferType = targetBufferType;
-    this._mode = mode;
     this._drawType = drawType;
     this._normalized = normalized;
 
@@ -89,7 +85,7 @@ export class LlyBuffer {
         throw new Error(`Invalid data type: ${dataType.toString()}`);
     }
 
-    this._stride = this._elementSize * this._typeSize;
+    this._stride = this._singleElementCount * this._typeSize;
     this._buffer = gl.createBuffer()!;
 
     this.bufferData();
@@ -103,8 +99,8 @@ export class LlyBuffer {
     return this._attributes;
   }
 
-  public get elementSize(): number {
-    return this._elementSize;
+  public get vertexDataCount(): number {
+    return this._singleElementCount;
   }
 
   public get dataType(): number {
@@ -121,10 +117,6 @@ export class LlyBuffer {
 
   public get typeSize(): number {
     return this._typeSize;
-  }
-
-  public get mode(): number {
-    return this._mode;
   }
 
   public get data(): number[] {

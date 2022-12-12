@@ -3,19 +3,15 @@ import {LlyShader} from '../gl/LlyShader';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
-import {vertexShaderSource2, fragmentShaderSource2} from '../shaders/simple';
 
 export class WebLily {
   public static instance: WebLily | null;
 
   private _canvas: HTMLCanvasElement;
   private _shader: LlyShader;
-  private _shader2: LlyShader;
-  private _buffer1: LlyBuffer;
-  private _buffer2: LlyBuffer;
+  private _buffer: LlyBuffer;
   private _bufferElem: LlyBuffer;
-  private _vao: LlyVertexArray;
-  private _vao2: LlyVertexArray;
+  private _vertexArray: LlyVertexArray;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -38,61 +34,33 @@ export class WebLily {
       vertexShaderSource,
       fragmentShaderSource
     );
-    // this._shader.bind();
-
-    // Create a shader
-    this._shader2 = new LlyShader(
-      'basic',
-      vertexShaderSource2,
-      fragmentShaderSource2
-    );
-    // this._shader.bind();
 
     // eslint-disable-next-line
-    let vertices1 = [
-      0, 0, 0,
-      0, 0.5, 0,
-      0.5, 0.5, 0
-    ];
-    // eslint-disable-next-line
-    let vertices2 = [
+    let vertices = [
       0, 0, 0,
       0, -0.5, 0,
       0.5, -0.5, 0,
       0.5, 0, 0
     ];
+
     const positionAttribute = new AttributeInfo();
     positionAttribute.location = this._shader.getAttributeLocation('position');
     positionAttribute.offset = 0;
     positionAttribute.count = 3;
 
-    const positionAttribute2 = new AttributeInfo();
-    positionAttribute2.location =
-      this._shader2.getAttributeLocation('position');
-    positionAttribute2.offset = 0;
-    positionAttribute2.count = 4;
-
-    // Create a buffer
-    this._buffer1 = new LlyBuffer(3, vertices1);
-    this._buffer1.addAttribute(positionAttribute);
-
-    this._vao = new LlyVertexArray();
-    this._vao.addBuffer(this._buffer1);
-
-    this._buffer2 = new LlyBuffer(3, vertices2);
-    this._buffer2.addAttribute(positionAttribute);
+    this._buffer = new LlyBuffer(3, vertices);
+    this._buffer.addAttribute(positionAttribute);
     this._bufferElem = new LlyBuffer(
-      6,
+      1,
       [0, 1, 2, 2, 3, 0],
       gl.UNSIGNED_SHORT,
       gl.ELEMENT_ARRAY_BUFFER,
-      gl.TRIANGLES,
       gl.STATIC_DRAW
     );
 
-    this._vao2 = new LlyVertexArray();
-    this._vao2.addBuffer(this._buffer2);
-    this._vao2.setElementBuffer(this._bufferElem);
+    this._vertexArray = new LlyVertexArray();
+    this._vertexArray.addBuffer(this._buffer);
+    this._vertexArray.setIndexBuffer(this._bufferElem);
   }
 
   public start(): void {
@@ -114,16 +82,15 @@ export class WebLily {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     this._shader.bind();
-    this._vao.bind();
-    gl.drawArrays(
-      gl.TRIANGLES,
-      0,
-      this._buffer1.data.length / this._buffer1.elementSize
+    this._vertexArray.bind();
+    gl.drawElements(
+      this._vertexArray.mode,
+      this._vertexArray.indexBufferCount()!,
+      this._vertexArray.indexBufferDataType()!,
+      0
     );
 
-    this._shader2.bind();
-    this._vao2.bind();
-    gl.drawElements(gl.TRIANGLES, 6, this._bufferElem.dataType, 0);
+    this._vertexArray.unbind();
 
     requestAnimationFrame(this.loop.bind(this));
   }
