@@ -3,15 +3,16 @@ import {LlyShader} from '../gl/LlyShader';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
+import {Sprite} from '../graphics/Sprite';
+import {Vec3} from '../math/Vec3';
+import {Matrix4x4} from '../math/Matrix4x4';
 
 export class WebLily {
   public static instance: WebLily | null;
-
   private _canvas: HTMLCanvasElement;
   private _shader: LlyShader;
-  private _buffer: LlyBuffer;
-  private _bufferElem: LlyBuffer;
-  private _vertexArray: LlyVertexArray;
+  private _sprite1: Sprite;
+  private _projection: Matrix4x4;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -35,33 +36,20 @@ export class WebLily {
       fragmentShaderSource
     );
 
-    // eslint-disable-next-line
-    let vertices = [
-      0, 0, 0,
-      0, -0.5, 0,
-      0.5, -0.5, 0,
-      0.5, 0, 0
-    ];
-
-    const positionAttribute = new AttributeInfo();
-    positionAttribute.location =
-      this._shader.getAttributeLocation('a_position');
-    positionAttribute.offset = 0;
-    positionAttribute.count = 3;
-
-    this._buffer = new LlyBuffer(3, vertices);
-    this._buffer.addAttribute(positionAttribute);
-    this._bufferElem = new LlyBuffer(
-      1,
-      [0, 1, 2, 2, 3, 0],
-      gl.UNSIGNED_SHORT,
-      gl.ELEMENT_ARRAY_BUFFER,
-      gl.STATIC_DRAW
+    this._sprite1 = new Sprite(
+      new Vec3(100, 100, 0),
+      new Vec3(100, 100, 1),
+      new Vec3()
     );
 
-    this._vertexArray = new LlyVertexArray();
-    this._vertexArray.addBuffer(this._buffer);
-    this._vertexArray.setIndexBuffer(this._bufferElem);
+    this._projection = Matrix4x4.orthographic(
+      0,
+      this._canvas.width,
+      0,
+      this._canvas.height,
+      -1.0,
+      100.0
+    );
   }
 
   public start(): void {
@@ -88,15 +76,22 @@ export class WebLily {
     const colorPosition = this._shader.getUniformLocation('u_color');
     gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
 
-    this._vertexArray.bind();
-    gl.drawElements(
-      this._vertexArray.mode,
-      this._vertexArray.indexBufferCount()!,
-      this._vertexArray.indexBufferDataType()!,
-      0
+    const projectionPosition = this._shader.getUniformLocation('u_projection');
+    gl.uniformMatrix4fv(
+      projectionPosition,
+      false,
+      new Float32Array(this._projection.data)
     );
 
-    this._vertexArray.unbind();
+    const modelLocation = this._shader.getUniformLocation('u_model');
+    gl.uniformMatrix4fv(
+      modelLocation,
+      false,
+      new Float32Array(Matrix4x4.translation(this._sprite1.position).data)
+    );
+
+    // Draw the sprite
+    this._sprite1.draw();
 
     requestAnimationFrame(this.loop.bind(this));
   }
