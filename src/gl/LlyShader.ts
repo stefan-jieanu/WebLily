@@ -7,6 +7,7 @@ export class LlyShader {
   private _name: string;
   private _program: WebGLProgram;
   private _attributes: {[name: string]: number} = {};
+  private _uniforms: {[name: string]: WebGLUniformLocation | null} = {};
 
   /**
    * Creates a new shader.
@@ -25,6 +26,7 @@ export class LlyShader {
 
     this._program = this.createProgram(vertexShader, fragmentShader);
     this.detectAttributes();
+    this.detectUniforms();
   }
 
   public get name(): string {
@@ -50,6 +52,20 @@ export class LlyShader {
       );
 
     return this._attributes[name];
+  }
+
+  /**
+   * Gets the uniform location for a given name in this shader.
+   * @param name The name of the uniform.
+   * @returns The location of the uniform.
+   */
+  public getUniformLocation(name: string): WebGLUniformLocation | null {
+    if (this._uniforms[name] === null || this._uniforms[name] === undefined)
+      throw new Error(
+        `Unable to find uniform named ${name} in shader ${this.name}`
+      );
+
+    return this._uniforms[name];
   }
 
   private loadShader(source: string, shaderType: number): WebGLShader {
@@ -100,6 +116,28 @@ export class LlyShader {
       this._attributes[attributeInfo.name] = gl.getAttribLocation(
         this._program,
         attributeInfo.name
+      );
+    }
+  }
+
+  private detectUniforms(): void {
+    const uniformCount = gl.getProgramParameter(
+      this._program,
+      gl.ACTIVE_UNIFORMS
+    );
+
+    for (let i = 0; i < uniformCount; ++i) {
+      const uniformInfo: WebGLActiveInfo | null = gl.getActiveUniform(
+        this._program,
+        i
+      );
+
+      if (!uniformInfo) break;
+
+      // Go through the shader and get all the attributes
+      this._uniforms[uniformInfo.name] = gl.getUniformLocation(
+        this._program,
+        uniformInfo.name
       );
     }
   }

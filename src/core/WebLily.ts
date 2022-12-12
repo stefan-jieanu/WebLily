@@ -44,7 +44,8 @@ export class WebLily {
     ];
 
     const positionAttribute = new AttributeInfo();
-    positionAttribute.location = this._shader.getAttributeLocation('position');
+    positionAttribute.location =
+      this._shader.getAttributeLocation('a_position');
     positionAttribute.offset = 0;
     positionAttribute.count = 3;
 
@@ -82,6 +83,11 @@ export class WebLily {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     this._shader.bind();
+
+    // Set uniforms
+    const colorPosition = this._shader.getUniformLocation('u_color');
+    gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
+
     this._vertexArray.bind();
     gl.drawElements(
       this._vertexArray.mode,

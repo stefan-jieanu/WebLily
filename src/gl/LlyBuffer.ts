@@ -99,7 +99,7 @@ export class LlyBuffer {
     return this._attributes;
   }
 
-  public get vertexDataCount(): number {
+  public get singleElementCount(): number {
     return this._singleElementCount;
   }
 
