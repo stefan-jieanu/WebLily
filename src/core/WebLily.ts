@@ -1,7 +1,5 @@
 import {LlyGL, gl} from '../gl/LlyGL';
 import {LlyShader} from '../gl/LlyShader';
-import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
-import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 import {Sprite} from '../graphics/Sprite';
 import {Vec3} from '../math/Vec3';
@@ -37,9 +35,9 @@ export class WebLily {
     );
 
     this._sprite1 = new Sprite(
-      new Vec3(100, 100, 0),
-      new Vec3(100, 100, 1),
-      new Vec3()
+      new Vec3(500, 200, 0),
+      new Vec3(100, 100, -2),
+      new Vec3(-1, 0, 45)
     );
 
     this._projection = Matrix4x4.orthographic(
@@ -83,11 +81,22 @@ export class WebLily {
       new Float32Array(this._projection.data)
     );
 
+    const trs = Matrix4x4.translation(this._sprite1.position);
+    const rot = Matrix4x4.rotation(this._sprite1.rotation);
+    this._sprite1.rotation = new Vec3(
+      this._sprite1.rotation.x,
+      this._sprite1.rotation.y,
+      this._sprite1.rotation.z
+    );
+    const scale = Matrix4x4.scale(this._sprite1.scale);
     const modelLocation = this._shader.getUniformLocation('u_model');
     gl.uniformMatrix4fv(
       modelLocation,
       false,
-      new Float32Array(Matrix4x4.translation(this._sprite1.position).data)
+      // new Float32Array(
+      //   Matrix4x4.multiply(Matrix4x4.multiply(scale, rot), trs).data
+      // )
+      new Float32Array(rot.data)
     );
 
     // Draw the sprite

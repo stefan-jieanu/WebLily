@@ -1,12 +1,12 @@
 import {gl} from '../gl/LlyGL';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
-import {Vec3} from '../math/Math';
+import {Vec3} from '../math/LlyMath';
 
 export class Sprite {
   private _scale: Vec3;
-  private _position: Vec3;
   private _rotation: Vec3;
+  private _position: Vec3;
   private _buffer: LlyBuffer;
   private _bufferElem: LlyBuffer;
   private _vertexArray: LlyVertexArray;
@@ -15,6 +15,17 @@ export class Sprite {
     this._position = position;
     this._scale = scale;
     this._rotation = rotation;
+
+    // const vertices = [
+    //   // eslint-disable-next-line
+    //   -0.5, -0.5, 0,
+    //   // eslint-disable-next-line
+    //   -0.5, 0.5, 0,
+    //   // eslint-disable-next-line
+    //   0.5, 0.5, 0,
+    //   // eslint-disable-next-line
+    //   0.5, -0.5, 0
+    // ];
 
     const vertices = [
       // eslint-disable-next-line
@@ -50,12 +61,28 @@ export class Sprite {
     this._vertexArray.setIndexBuffer(this._bufferElem);
   }
 
+  public get scale(): Vec3 {
+    return this._scale;
+  }
+
+  public set scale(value: Vec3) {
+    this._scale = value;
+  }
+
   public get position(): Vec3 {
     return this._position;
   }
 
   public set position(value: Vec3) {
     this._position = value;
+  }
+
+  public get rotation(): Vec3 {
+    return this._rotation;
+  }
+
+  public set rotation(value: Vec3) {
+    this._rotation = value;
   }
 
   public draw(): void {
