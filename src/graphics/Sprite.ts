@@ -16,27 +16,38 @@ export class Sprite {
     this._scale = scale;
     this._rotation = rotation;
 
-    // const vertices = [
-    //   // eslint-disable-next-line
-    //   -0.5, -0.5, 0,
-    //   // eslint-disable-next-line
-    //   -0.5, 0.5, 0,
-    //   // eslint-disable-next-line
-    //   0.5, 0.5, 0,
-    //   // eslint-disable-next-line
-    //   0.5, -0.5, 0
-    // ];
-
     const vertices = [
       // eslint-disable-next-line
-      0, 0, 0,
+      -0.5, -0.5, 1,
       // eslint-disable-next-line
-      0, this._scale.y, 0,
+      -0.5, 0.5, 1,
       // eslint-disable-next-line
-      this._scale.x, this._scale.y, 0,
+      0.5, 0.5, 1,
       // eslint-disable-next-line
-      this._scale.x, 0, 0
+      0.5, -0.5, 1
     ];
+
+    // const vertices = [
+    //   // eslint-disable-next-line
+    //   0, 0, 0,
+    //   // eslint-disable-next-line
+    //   0, this._scale.y, 0,
+    //   // eslint-disable-next-line
+    //   this._scale.x, this._scale.y, 0,
+    //   // eslint-disable-next-line
+    //   this._scale.x, 0, 0
+    // ];
+
+    // const vertices = [
+    //   -1, -1,  0.5, //0
+    //   1, -1,  0.5, //1
+    //  -1,  1,  0.5, //2
+    //   1,  1,  0.5, //3
+    //  -1, -1, -0.5, //4
+    //   1, -1, -0.5, //5
+    //  -1,  1, -0.5, //6
+    //   1,  1, -0.5  //7
+    // ];
 
     const positionAttribute = new AttributeInfo();
     // TODO: disgusting temporary fix, to be changed to get proper shader info

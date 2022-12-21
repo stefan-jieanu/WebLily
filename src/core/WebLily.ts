@@ -4,13 +4,15 @@ import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 import {Sprite} from '../graphics/Sprite';
 import {Vec3} from '../math/Vec3';
 import {Matrix4x4} from '../math/Matrix4x4';
+import {Camera} from '../graphics/Camera';
 
 export class WebLily {
   public static instance: WebLily | null;
   private _canvas: HTMLCanvasElement;
   private _shader: LlyShader;
   private _sprite1: Sprite;
-  private _projection: Matrix4x4;
+  private _sprite2: Sprite;
+  private _camera: Camera;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -36,18 +38,25 @@ export class WebLily {
 
     this._sprite1 = new Sprite(
       new Vec3(500, 200, 0),
-      new Vec3(100, 100, -2),
-      new Vec3(-1, 0, 45)
+      new Vec3(100, 100, 1),
+      new Vec3(0, 0, 45)
     );
 
-    this._projection = Matrix4x4.orthographic(
-      0,
-      this._canvas.width,
-      0,
-      this._canvas.height,
-      -1.0,
-      100.0
+    this._sprite2 = new Sprite(
+      new Vec3(120, 300, 0),
+      new Vec3(300, 150, 1),
+      new Vec3(0, 0, 90)
     );
+
+    this._camera = Camera.orthographic(
+      -(this._canvas.width / 2),
+      this._canvas.width / 2,
+      -(this._canvas.height / 2),
+      this._canvas.height / 2
+    );
+    this._camera.position = new Vec3(-200, -100, 0);
+    this._camera.rotation = new Vec3(0, 0, 30);
+    this._camera.scale = new Vec3(0.8, 0.8, 1);
   }
 
   public start(): void {
@@ -74,15 +83,15 @@ export class WebLily {
     const colorPosition = this._shader.getUniformLocation('u_color');
     gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
 
-    const projectionPosition = this._shader.getUniformLocation('u_projection');
+    const projectionPosition = this._shader.getUniformLocation('u_projectionView');
     gl.uniformMatrix4fv(
       projectionPosition,
       false,
-      new Float32Array(this._projection.data)
+      new Float32Array(this._camera.projectionViewMatrix.data)
     );
 
-    const trs = Matrix4x4.translation(this._sprite1.position);
-    const rot = Matrix4x4.rotation(this._sprite1.rotation);
+    const trs = Matrix4x4.translate(this._sprite1.position);
+    const rot = Matrix4x4.rotate(this._sprite1.rotation);
     this._sprite1.rotation = new Vec3(
       this._sprite1.rotation.x,
       this._sprite1.rotation.y,
@@ -93,14 +102,32 @@ export class WebLily {
     gl.uniformMatrix4fv(
       modelLocation,
       false,
-      // new Float32Array(
-      //   Matrix4x4.multiply(Matrix4x4.multiply(scale, rot), trs).data
-      // )
-      new Float32Array(rot.data)
+      new Float32Array(
+        Matrix4x4.multiply(Matrix4x4.multiply(scale, rot), trs).data
+      )
+      // new Float32Array(rot.data)
     );
 
     // Draw the sprite
     this._sprite1.draw();
+
+    const trs2 = Matrix4x4.translate(this._sprite2.position);
+    const rot2 = Matrix4x4.rotate(this._sprite2.rotation);
+    this._sprite2.rotation = new Vec3(
+      this._sprite2.rotation.x,
+      this._sprite2.rotation.y,
+      this._sprite2.rotation.z
+    );
+    const scale2 = Matrix4x4.scale(this._sprite2.scale);
+    const modelLocation2 = this._shader.getUniformLocation('u_model');
+    gl.uniformMatrix4fv(
+      modelLocation2,
+      false,
+      new Float32Array(
+        Matrix4x4.multiply(Matrix4x4.multiply(scale2, rot2), trs2).data
+      )
+    );
+    this._sprite2.draw();
 
     requestAnimationFrame(this.loop.bind(this));
   }

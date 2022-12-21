@@ -65,7 +65,7 @@ export class Matrix4x4 {
     return matrix;
   }
 
-  public static translation(position: Vec3): Matrix4x4 {
+  public static translate(position: Vec3): Matrix4x4 {
     const matrix = new Matrix4x4();
 
     matrix._data[12] = position.x;
@@ -85,7 +85,7 @@ export class Matrix4x4 {
     return matrix;
   }
 
-  public static rotation(angles: Vec3): Matrix4x4 {
+  public static rotate(angles: Vec3): Matrix4x4 {
     const matrix = new Matrix4x4();
 
     const x = degreesToRadians(angles.x);
