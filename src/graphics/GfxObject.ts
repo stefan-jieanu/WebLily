@@ -3,7 +3,7 @@ import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {Vec3} from '../math/LlyMath';
 
-export class Sprite {
+export class GfxObject {
   private _scale: Vec3;
   private _rotation: Vec3;
   private _position: Vec3;
@@ -94,6 +94,10 @@ export class Sprite {
 
   public set rotation(value: Vec3) {
     this._rotation = value;
+  }
+
+  public get vertexArray(): LlyVertexArray {
+    return this._vertexArray;
   }
 
   public draw(): void {
