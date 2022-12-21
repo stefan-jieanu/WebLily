@@ -28,6 +28,13 @@ export abstract class Camera {
     return new OrthographicCamera(left, right, bottom, top);
   }
 
+  public resetProjection(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number
+  ): void {}
+
   public get projectionMatrix(): Matrix4x4 {
     return this._projectionMatrix;
   }
@@ -54,10 +61,10 @@ export abstract class Camera {
   protected recalculateViewMatrix(): void {
     this._viewMatrix = Matrix4x4.multiply(
       Matrix4x4.multiply(
-        Matrix4x4.scale(this._scale),
-        Matrix4x4.rotate(this._rotation)
+        Matrix4x4.rotate(this._rotation),
+        Matrix4x4.translate(this._position)
       ),
-      Matrix4x4.translate(this._position)
+      Matrix4x4.scale(this._scale)
     );
 
     this._projectionViewMatrix = Matrix4x4.multiply(
@@ -70,7 +77,15 @@ export abstract class Camera {
 class OrthographicCamera extends Camera {
   constructor(left: number, right: number, bottom: number, top: number) {
     super();
+    this.resetProjection(left, right, bottom, top);
+  }
 
+  public resetProjection(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number
+  ): void {
     this._projectionMatrix = Matrix4x4.orthographic(
       left,
       right,

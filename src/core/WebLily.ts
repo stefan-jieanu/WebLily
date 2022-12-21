@@ -37,7 +37,7 @@ export class WebLily {
     );
 
     this._sprite1 = new Sprite(
-      new Vec3(500, 200, 0),
+      new Vec3(0, 0, 0),
       new Vec3(100, 100, 1),
       new Vec3(0, 0, 45)
     );
@@ -54,9 +54,9 @@ export class WebLily {
       -(this._canvas.height / 2),
       this._canvas.height / 2
     );
-    this._camera.position = new Vec3(-200, -100, 0);
-    this._camera.rotation = new Vec3(0, 0, 30);
-    this._camera.scale = new Vec3(0.8, 0.8, 1);
+    this._camera.position = new Vec3(0, 0, 0);
+    this._camera.rotation = new Vec3(0, 0, 67);
+    this._camera.scale = new Vec3(1, 1, 1);
   }
 
   public start(): void {
@@ -140,6 +140,14 @@ export class WebLily {
 
     // Resize WebGL context viewport
     gl.viewport(0, 0, this._canvas.width, (this._canvas.width * 9) / 16);
+
+    // Resize the camera projection
+    this._camera?.resetProjection(
+      -(this._canvas.width / 2),
+      this._canvas.width / 2,
+      -(this._canvas.height / 2),
+      this._canvas.height / 2
+    );
   }
 
   public resizeCallback(): void {
