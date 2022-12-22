@@ -35,12 +35,12 @@ export abstract class Camera {
     top: number
   ): void {}
 
-  public get projectionMatrix(): Matrix4x4 {
-    return this._projectionMatrix;
+  public get projectionMatrix(): Float32Array {
+    return new Float32Array(this._projectionMatrix.data);
   }
 
-  public get projectionViewMatrix(): Matrix4x4 {
-    return this._projectionViewMatrix;
+  public get projectionViewMatrix(): Float32Array {
+    return new Float32Array(this._projectionViewMatrix.data);
   }
 
   public set position(value: Vec3) {

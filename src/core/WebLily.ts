@@ -5,6 +5,7 @@ import {GfxObject} from '../graphics/GfxObject';
 import {Vec3} from '../math/Vec3';
 import {Camera} from '../graphics/Camera';
 import {Renderer} from '../graphics/Renderer';
+import {Color} from '../graphics/Color';
 
 export class WebLily {
   public static instance: WebLily | null;
@@ -60,7 +61,7 @@ export class WebLily {
     this._camera.scale = new Vec3(1, 1, 1);
 
     this._renderer = new Renderer();
-    this._renderer.setShader(this._shader);
+    this._renderer.clearColor = new Color(0.2, 0.2, 0.2);
   }
 
   public start(): void {
@@ -81,30 +82,23 @@ export class WebLily {
   }
 
   private loop(): void {
-    gl.clearColor(0, 0.2, 0.4, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    this._shader.bind();
+    this._renderer.clear();
 
     // Set uniforms
     // const colorPosition = this._shader.getUniformLocation('u_color');
     // gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
-
-    const projectionPosition = this._shader.getUniformLocation('u_projectionView');
-    gl.uniformMatrix4fv(
-      projectionPosition,
-      false,
-      new Float32Array(this._camera.projectionViewMatrix.data)
-    );
 
     this._sprite1.rotation = new Vec3(
       this._sprite1.rotation.x,
       this._sprite1.rotation.y,
       this._sprite1.rotation.z + 0.1
     );
+
+    this._renderer.beginScene(this._camera, this._shader);
     this._renderer.submit(this._sprite1);
     this._renderer.submit(this._sprite2);
     this._renderer.flush();
+    this._renderer.endScene();
 
     requestAnimationFrame(this.loop.bind(this));
   }
