@@ -1,12 +1,16 @@
 import {gl} from '../gl/LlyGL';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
-import {Vec3} from '../math/LlyMath';
+import {Matrix4x4, Vec3} from '../math/LlyMath';
 
 export class GfxObject {
   private _scale: Vec3;
   private _rotation: Vec3;
   private _position: Vec3;
+
+  // @ts-expect-error: is assigned in constructor but in a function
+  private _modelMtx: Matrix4x4;
+
   private _buffer: LlyBuffer;
   private _bufferElem: LlyBuffer;
   private _vertexArray: LlyVertexArray;
@@ -15,6 +19,7 @@ export class GfxObject {
     this._position = position;
     this._scale = scale;
     this._rotation = rotation;
+    this.recalculateModelMatrix();
 
     const vertices = [
       // eslint-disable-next-line
@@ -26,28 +31,6 @@ export class GfxObject {
       // eslint-disable-next-line
       0.5, -0.5, 1
     ];
-
-    // const vertices = [
-    //   // eslint-disable-next-line
-    //   0, 0, 0,
-    //   // eslint-disable-next-line
-    //   0, this._scale.y, 0,
-    //   // eslint-disable-next-line
-    //   this._scale.x, this._scale.y, 0,
-    //   // eslint-disable-next-line
-    //   this._scale.x, 0, 0
-    // ];
-
-    // const vertices = [
-    //   -1, -1,  0.5, //0
-    //   1, -1,  0.5, //1
-    //  -1,  1,  0.5, //2
-    //   1,  1,  0.5, //3
-    //  -1, -1, -0.5, //4
-    //   1, -1, -0.5, //5
-    //  -1,  1, -0.5, //6
-    //   1,  1, -0.5  //7
-    // ];
 
     const positionAttribute = new AttributeInfo();
     // TODO: disgusting temporary fix, to be changed to get proper shader info
@@ -78,6 +61,7 @@ export class GfxObject {
 
   public set scale(value: Vec3) {
     this._scale = value;
+    this.recalculateModelMatrix();
   }
 
   public get position(): Vec3 {
@@ -86,6 +70,7 @@ export class GfxObject {
 
   public set position(value: Vec3) {
     this._position = value;
+    this.recalculateModelMatrix();
   }
 
   public get rotation(): Vec3 {
@@ -94,10 +79,15 @@ export class GfxObject {
 
   public set rotation(value: Vec3) {
     this._rotation = value;
+    this.recalculateModelMatrix();
   }
 
   public get vertexArray(): LlyVertexArray {
     return this._vertexArray;
+  }
+
+  public get modelMtx(): Float32Array {
+    return new Float32Array(this._modelMtx.data);
   }
 
   public draw(): void {
@@ -112,5 +102,16 @@ export class GfxObject {
     );
 
     this._vertexArray.unbind();
+  }
+
+  private recalculateModelMatrix(): void {
+    const translation = Matrix4x4.translate(this._position);
+    const rotation = Matrix4x4.rotate(this._rotation);
+    const scale = Matrix4x4.scale(this._scale);
+
+    this._modelMtx = Matrix4x4.multiply(
+      Matrix4x4.multiply(scale, rotation),
+      translation
+    );
   }
 }

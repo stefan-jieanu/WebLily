@@ -3,7 +3,6 @@ import {LlyShader} from '../gl/LlyShader';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 import {GfxObject} from '../graphics/GfxObject';
 import {Vec3} from '../math/Vec3';
-import {Matrix4x4} from '../math/Matrix4x4';
 import {Camera} from '../graphics/Camera';
 import {Renderer} from '../graphics/Renderer';
 
@@ -98,6 +97,11 @@ export class WebLily {
       new Float32Array(this._camera.projectionViewMatrix.data)
     );
 
+    this._sprite1.rotation = new Vec3(
+      this._sprite1.rotation.x,
+      this._sprite1.rotation.y,
+      this._sprite1.rotation.z + 0.1
+    );
     this._renderer.submit(this._sprite1);
     this._renderer.submit(this._sprite2);
     this._renderer.flush();
