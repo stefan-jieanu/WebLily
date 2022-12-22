@@ -87,8 +87,8 @@ export class WebLily {
     this._shader.bind();
 
     // Set uniforms
-    const colorPosition = this._shader.getUniformLocation('u_color');
-    gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
+    // const colorPosition = this._shader.getUniformLocation('u_color');
+    // gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
 
     const projectionPosition = this._shader.getUniformLocation('u_projectionView');
     gl.uniformMatrix4fv(
