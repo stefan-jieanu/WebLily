@@ -2,7 +2,7 @@ import {LlyGL, gl} from '../gl/LlyGL';
 import {LlyShader} from '../gl/LlyShader';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 import {GfxObject} from '../graphics/GfxObject';
-import {Vec3} from '../math/Vec3';
+import {Vec3, Matrix4x4} from '../math/LlyMath';
 import {Camera} from '../graphics/Camera';
 import {Renderer} from '../graphics/Renderer';
 import {Color} from '../graphics/Color';
@@ -31,6 +31,28 @@ export class WebLily {
     // Resize the canvas to the right size
     this.resize();
 
+    // Set callbacks
+    // this._canvas.addEventListener(
+    //   'mousedown',
+    //   this.mouseDownCallback.bind(this),
+    //   false
+    // );
+    // this._canvas.addEventListener(
+    //   'mouseup',
+    //   this.mouseUpCallback.bind(this),
+    //   false
+    // );
+    // this._canvas.addEventListener(
+    //   'wheel',
+    //   this.mouseScrollCallback.bind(this),
+    //   false
+    // );
+
+    // Disable right click context menu
+    this._canvas.addEventListener('contextmenu', (e: Event) =>
+      e.preventDefault()
+    );
+
     // Create a shader
     this._shader = new LlyShader(
       'basic',
@@ -58,7 +80,7 @@ export class WebLily {
     );
     this._camera.position = new Vec3(0, 0, 0);
     this._camera.rotation = new Vec3(0, 0, 67);
-    this._camera.scale = new Vec3(1, 1, 1);
+    this._camera.scale = new Vec3(0.5, 1, 1);
 
     this._renderer = new Renderer();
     this._renderer.clearColor = new Color(0.2, 0.2, 0.2);
@@ -123,5 +145,69 @@ export class WebLily {
 
   public resizeCallback(): void {
     this.resize();
+  }
+
+  public mouseDownCallback(e: MouseEvent): void {
+    const rect: DOMRect = this._canvas.getBoundingClientRect();
+    const canvasX = e.clientX - rect.left;
+    const canvasY = e.clientY - rect.top;
+
+    const clipX = (canvasX / rect.width) * 2 - 1;
+    const clipY = (canvasY / rect.height) * -2 + 1;
+
+    // Map canvasPos to device coordinates (-0.5, 0.5)
+    // function mapValueRange(
+    //   value: number,
+    //   inMin: number,
+    //   inMax: number,
+    //   outMin: number,
+    //   outMax: number
+    // ) {
+    //   return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    // }
+
+    function transformPoint(m: number[], v: number[]): Vec3 {
+      const dst = new Vec3();
+      const v0 = v[0];
+      const v1 = v[1];
+      const v2 = v[2];
+      const d = v0 * m[0 * 4 + 3] + v1 * m[1 * 4 + 3] + v2 * m[2 * 4 + 3] + m[3 * 4 + 3];
+      dst.x = (v0 * m[0 * 4 + 0] + v1 * m[1 * 4 + 0] + v2 * m[2 * 4 + 0] + m[3 * 4 + 0]) / d;
+      dst.y = (v0 * m[0 * 4 + 1] + v1 * m[1 * 4 + 1] + v2 * m[2 * 4 + 1] + m[3 * 4 + 1]) / d;
+      dst.z = (v0 * m[0 * 4 + 2] + v1 * m[1 * 4 + 2] + v2 * m[2 * 4 + 2] + m[3 * 4 + 2]) / d;
+      return dst;
+    }
+
+    const trs = Matrix4x4.translate(new Vec3(canvasX, canvasY, 0));
+    const rot = Matrix4x4.translate(new Vec3(0, 0, 0));
+    const sca = Matrix4x4.translate(new Vec3(1, 1, 0));
+
+    const model = Matrix4x4.multiply(Matrix4x4.multiply(sca, rot), trs);
+
+    const newPos = transformPoint(
+      Matrix4x4.multiply(this._camera.projectionViewMatrix, model).data,
+      [clipX, clipY, 0]
+    );
+
+    // Transform device coordinates to world position
+    // const scaled = Matrix4x4.multiplyVec3(
+    //   devicePos,
+    //   this._camera.projectionViewMatrix
+    // );
+
+    // this._sprite1.position = ();
+    console.log(`${newPos.x}, ${newPos.y}`);
+  }
+
+  public mouseUpCallback(e: MouseEvent): void {}
+
+  public mouseScrollCallback(e: MouseEvent): void {}
+
+  public mouseMoveCallback(e: MouseEvent): void {
+    const rect: DOMRect = this._canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // console.log(`${x}, ${y}`);
   }
 }

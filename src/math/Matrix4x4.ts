@@ -1,6 +1,6 @@
 import {Vec3, degreesToRadians} from './LlyMath';
 
-export class Matrix4x4 {
+class Matrix4x4 {
   private _data: number[] = [];
 
   public constructor() {
@@ -63,6 +63,30 @@ export class Matrix4x4 {
     }
 
     return matrix;
+  }
+
+  public static multiplyVec3(left: Vec3, right: Matrix4x4): Vec3 {
+    const vector = new Vec3();
+
+    vector.x =
+      left.x * right.data[0] +
+      left.x * right.data[4] +
+      left.x * right.data[8] +
+      left.x * right.data[12];
+
+    vector.y =
+      left.y * right.data[1] +
+      left.y * right.data[5] +
+      left.y * right.data[9] +
+      left.y * right.data[13];
+
+    vector.z =
+      left.z * right.data[2] +
+      left.z * right.data[6] +
+      left.z * right.data[10] +
+      left.z * right.data[14];
+
+    return vector;
   }
 
   public static translate(position: Vec3): Matrix4x4 {

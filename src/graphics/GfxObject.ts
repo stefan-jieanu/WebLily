@@ -1,21 +1,21 @@
 import {gl} from '../gl/LlyGL';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
-import {Matrix4x4, Vec3} from '../math/LlyMath';
+import {mat4, vec3} from 'gl-matrix';
 
 export class GfxObject {
-  private _scale: Vec3;
-  private _rotation: Vec3;
-  private _position: Vec3;
+  private _scale: vec3;
+  private _rotation: vec3;
+  private _position: vec3;
 
   // @ts-expect-error: is assigned in constructor but in a function
-  private _modelMtx: Matrix4x4;
+  private _modelMtx: mat4;
 
   private _buffer: LlyBuffer;
   private _bufferElem: LlyBuffer;
   private _vertexArray: LlyVertexArray;
 
-  public constructor(position: Vec3, scale: Vec3, rotation: Vec3) {
+  public constructor(position: vec3, scale: vec3, rotation: vec3) {
     this._position = position;
     this._scale = scale;
     this._rotation = rotation;
@@ -90,29 +90,29 @@ export class GfxObject {
     this._vertexArray.setIndexBuffer(this._bufferElem);
   }
 
-  public get scale(): Vec3 {
+  public get scale(): vec3 {
     return this._scale;
   }
 
-  public set scale(value: Vec3) {
+  public set scale(value: vec3) {
     this._scale = value;
     this.recalculateModelMatrix();
   }
 
-  public get position(): Vec3 {
+  public get position(): vec3 {
     return this._position;
   }
 
-  public set position(value: Vec3) {
+  public set position(value: vec3) {
     this._position = value;
     this.recalculateModelMatrix();
   }
 
-  public get rotation(): Vec3 {
+  public get rotation(): vec3 {
     return this._rotation;
   }
 
-  public set rotation(value: Vec3) {
+  public set rotation(value: vec3) {
     this._rotation = value;
     this.recalculateModelMatrix();
   }
@@ -122,7 +122,7 @@ export class GfxObject {
   }
 
   public get modelMtx(): Float32Array {
-    return new Float32Array(this._modelMtx.data);
+    return new Float32Array(this._modelMtx);
   }
 
   public draw(): void {
@@ -140,9 +140,11 @@ export class GfxObject {
   }
 
   private recalculateModelMatrix(): void {
-    const translation = Matrix4x4.translate(this._position);
-    const rotation = Matrix4x4.rotate(this._rotation);
-    const scale = Matrix4x4.scale(this._scale);
+    let translation: mat4, rotation: mat4, scale: mat4;
+
+    mat4.translate(translation, mat4.identity, this._position);
+    mat4.translate(rotation, mat4.identity, this._position);
+    mat4.translate(scale, mat4.identity, this._position);
 
     this._modelMtx = Matrix4x4.multiply(
       Matrix4x4.multiply(scale, rotation),

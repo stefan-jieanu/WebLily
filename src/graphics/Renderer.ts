@@ -39,7 +39,7 @@ export class Renderer {
     gl.uniformMatrix4fv(
       projectionPosition,
       false,
-      this._camera.projectionViewMatrix
+      this._camera.projectionViewMatrixArray
     );
   }
 
