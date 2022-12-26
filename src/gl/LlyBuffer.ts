@@ -150,7 +150,7 @@ export class LlyBuffer {
     this._attributes.push(info);
   }
 
-  private bufferData(): void {
+  public bufferData(): void {
     this.bind();
 
     let bufferData: ArrayBuffer;

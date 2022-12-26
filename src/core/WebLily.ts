@@ -6,6 +6,7 @@ import {Camera} from '../graphics/Camera';
 import {Renderer} from '../graphics/Renderer';
 import {Color} from '../graphics/Color';
 import {vec3} from 'gl-matrix';
+import {ColorMaterial} from '../graphics/Material';
 
 export class WebLily {
   public static instance: WebLily | null;
@@ -15,6 +16,7 @@ export class WebLily {
   private _sprite2: GfxObject;
   private _camera: Camera;
   private _renderer: Renderer;
+  private _material: ColorMaterial;
 
   public static create(canvas: HTMLCanvasElement): WebLily {
     return new WebLily(canvas);
@@ -38,10 +40,12 @@ export class WebLily {
       fragmentShaderSource
     );
 
+    this._material = new ColorMaterial(Color.blue);
     this._sprite1 = new GfxObject(
       vec3.fromValues(0, 0, 0),
       vec3.fromValues(100, 100, 1),
-      vec3.fromValues(0, 0, 45)
+      vec3.fromValues(0, 0, 45),
+      this._material
     );
 
     this._sprite2 = new GfxObject(
@@ -138,12 +142,11 @@ export class WebLily {
   }
 
   public onKeyDown(e: KeyboardEvent): void {
-    console.log(e);
+    // change the material colors
+    this._material.changeColor(Color.teal);
   }
 
-  public onKeyUp(e: KeyboardEvent): void {
-    console.log(e);
-  }
+  public onKeyUp(e: KeyboardEvent): void {}
 
   public onMouseDown(e: MouseEvent): void {
     const rect: DOMRect = this._canvas.getBoundingClientRect();

@@ -3,6 +3,7 @@ import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {mat4, vec3} from 'gl-matrix';
 import {degreesToRadians} from '../math/LlyMath';
+import {ColorMaterial} from './Material';
 
 export class GfxObject {
   private _scale: vec3;
@@ -15,13 +16,22 @@ export class GfxObject {
   private _bufferElem: LlyBuffer;
   private _vertexArray: LlyVertexArray;
 
-  public constructor(position: vec3, scale: vec3, rotation: vec3) {
+  private _material: ColorMaterial;
+
+  public constructor(
+    position: vec3,
+    scale: vec3,
+    rotation: vec3,
+    material: ColorMaterial = new ColorMaterial()
+  ) {
     this._position = position;
     this._scale = scale;
     this._rotation = rotation;
 
     this._modelMtx = mat4.create();
     this.recalculateModelMatrix();
+
+    this._material = material;
 
     const vertices = [
       // eslint-disable-next-line
@@ -34,28 +44,6 @@ export class GfxObject {
       0.5, -0.5, 1
     ];
 
-    const verticesColor = [
-      // eslint-disable-next-line
-      1, 0, 1, 1,
-      // eslint-disable-next-line
-      0, 1, 1, 1,
-      // eslint-disable-next-line
-      0, 0, 1, 1,
-      // eslint-disable-next-line
-      1, 1, 0, 1
-    ];
-
-    // const vertices = [
-    //   // eslint-disable-next-line
-    //   -0.5, -0.5, 1, 1, 0, 0, 1,
-    //   // eslint-disable-next-line
-    //   -0.5, 0.5, 1, 0, 1, 0, 1,
-    //   // eslint-disable-next-line
-    //   0.5, 0.5, 1, 0, 0, 1, 1,
-    //   // eslint-disable-next-line
-    //   0.5, -0.5, 1, 0, 1, 0, 1
-    // ];
-
     const positionAttribute = new AttributeInfo();
     // TODO: disgusting temporary fix, to be changed to get proper shader info
     // positionAttribute.location =
@@ -64,19 +52,8 @@ export class GfxObject {
     positionAttribute.offset = 0;
     positionAttribute.count = 3;
 
-    const colorAttribute = new AttributeInfo();
-    // TODO: disgusting temporary fix, to be changed to get proper shader info
-    // positionAttribute.location =
-    //   this._shader.getAttributeLocation('a_position');
-    colorAttribute.location = 1;
-    colorAttribute.offset = 0;
-    colorAttribute.count = 4;
-
     this._buffer = new LlyBuffer(3, vertices);
     this._buffer.addAttribute(positionAttribute);
-
-    const newBuffer = new LlyBuffer(4, verticesColor);
-    newBuffer.addAttribute(colorAttribute);
 
     this._bufferElem = new LlyBuffer(
       1,
@@ -88,7 +65,7 @@ export class GfxObject {
 
     this._vertexArray = new LlyVertexArray();
     this._vertexArray.addBuffer(this._buffer);
-    this._vertexArray.addBuffer(newBuffer);
+    this._vertexArray.addBuffer(this._material.buffer);
     this._vertexArray.setIndexBuffer(this._bufferElem);
   }
 
