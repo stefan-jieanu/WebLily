@@ -47,6 +47,7 @@ export class WebLily {
       vec3.fromValues(0, 0, 45),
       this._material
     );
+    this._material.changeColor(new Color(0, 0, 0, 0), 0);
 
     this._sprite2 = new GfxObject(
       vec3.fromValues(120, 300, 0),
@@ -65,7 +66,10 @@ export class WebLily {
     this._camera.scale = vec3.fromValues(0.5, 0.5, 1);
 
     this._renderer = new Renderer();
-    this._renderer.clearColor = new Color(0.2, 0.2, 0.2);
+    this._renderer.clearColor = new Color(0.2, 0.2, 0.2, 1);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.enable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
   }
 
   public start(): void {
@@ -141,10 +145,7 @@ export class WebLily {
     this.resize();
   }
 
-  public onKeyDown(e: KeyboardEvent): void {
-    // change the material colors
-    this._material.changeColor(Color.teal);
-  }
+  public onKeyDown(e: KeyboardEvent): void {}
 
   public onKeyUp(e: KeyboardEvent): void {}
 
