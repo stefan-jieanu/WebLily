@@ -31,28 +31,6 @@ export class WebLily {
     // Resize the canvas to the right size
     this.resize();
 
-    // Set callbacks
-    // this._canvas.addEventListener(
-    //   'mousedown',
-    //   this.mouseDownCallback.bind(this),
-    //   false
-    // );
-    // this._canvas.addEventListener(
-    //   'mouseup',
-    //   this.mouseUpCallback.bind(this),
-    //   false
-    // );
-    // this._canvas.addEventListener(
-    //   'wheel',
-    //   this.mouseScrollCallback.bind(this),
-    //   false
-    // );
-
-    // Disable right click context menu
-    this._canvas.addEventListener('contextmenu', (e: Event) =>
-      e.preventDefault()
-    );
-
     // Create a shader
     this._shader = new LlyShader(
       'basic',
@@ -155,11 +133,19 @@ export class WebLily {
     );
   }
 
-  public resizeCallback(): void {
+  public onResize(): void {
     this.resize();
   }
 
-  public mouseDownCallback(e: MouseEvent): void {
+  public onKeyDown(e: KeyboardEvent): void {
+    console.log(e);
+  }
+
+  public onKeyUp(e: KeyboardEvent): void {
+    console.log(e);
+  }
+
+  public onMouseDown(e: MouseEvent): void {
     const rect: DOMRect = this._canvas.getBoundingClientRect();
     const canvasX = e.clientX - rect.left;
     const canvasY = e.clientY - rect.top;
@@ -211,11 +197,11 @@ export class WebLily {
     // console.log(`${newPos.x}, ${newPos.y}`);
   }
 
-  public mouseUpCallback(e: MouseEvent): void {}
+  public onMouseUp(e: MouseEvent): void {}
 
-  public mouseScrollCallback(e: MouseEvent): void {}
+  public onMouseScroll(e: MouseEvent): void {}
 
-  public mouseMoveCallback(e: MouseEvent): void {
+  public onMouseMove(e: MouseEvent): void {
     const rect: DOMRect = this._canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
