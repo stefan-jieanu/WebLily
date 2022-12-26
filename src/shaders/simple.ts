@@ -8,7 +8,7 @@ export const vertexShaderSource = `
   varying vec4 v_color;
 
   void main() {
-    gl_Position = u_projectionView * u_model * vec4(a_position, 1.0);
+    gl_Position =   u_projectionView * u_model * vec4(a_position, 1.0);
     v_color = a_color;
   }
 `;

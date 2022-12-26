@@ -1,22 +1,25 @@
-import {Vec3, Matrix4x4} from '../math/LlyMath';
+// import {Vec3, Matrix4x4} from '../math/LlyMath';
+import {vec3, mat4} from 'gl-matrix';
+import {degreesToRadians} from '../math/LlyMath';
 
 export abstract class Camera {
-  protected _projectionMatrix: Matrix4x4;
-  protected _viewMatrix: Matrix4x4;
-  protected _projectionViewMatrix: Matrix4x4;
+  protected _projectionMatrix: mat4;
+  protected _viewMatrix: mat4;
+  protected _projectionViewMatrix: mat4;
 
-  protected _position: Vec3;
-  protected _rotation: Vec3;
-  protected _scale: Vec3;
+  protected _position: vec3;
+  protected _rotation: vec3;
+  protected _scale: vec3;
 
   public constructor() {
-    this._projectionMatrix = new Matrix4x4();
-    this._viewMatrix = new Matrix4x4();
-    this._projectionViewMatrix = new Matrix4x4();
+    this._projectionMatrix = mat4.create();
+    this._viewMatrix = mat4.create();
+    this._viewMatrix = mat4.identity(this._viewMatrix);
+    this._projectionViewMatrix = mat4.create();
 
-    this._position = new Vec3();
-    this._rotation = new Vec3();
-    this._scale = new Vec3(1, 1, 1);
+    this._position = vec3.create();
+    this._rotation = vec3.create();
+    this._scale = vec3.fromValues(1, 1, 1);
   }
 
   public static orthographic(
@@ -35,53 +38,65 @@ export abstract class Camera {
     top: number
   ): void {}
 
-  public get projectionMatrix(): Matrix4x4 {
+  public get projectionMatrix(): mat4 {
     return this._projectionMatrix;
   }
 
-  public get projectionMatrixArray(): Float32Array {
-    return new Float32Array(this._projectionMatrix.data);
-  }
+  // public get projectionMatrixArray(): Float32Array {
+  //   return new Float32Array(this._projectionMatrix.data);
+  // }
 
-  public get projectionViewMatrix(): Matrix4x4 {
+  public get projectionViewMatrix(): mat4 {
     return this._projectionViewMatrix;
   }
 
-  public get projectionViewMatrixArray(): Float32Array {
-    return new Float32Array(this._projectionViewMatrix.data);
-  }
+  // public get projectionViewMatrixArray(): Float32Array {
+  //   return new Float32Array(this._projectionViewMatrix.data);
+  // }
 
-  public get viewMatrix(): Matrix4x4 {
+  public get viewMatrix(): mat4 {
     return this._viewMatrix;
   }
 
-  public set position(value: Vec3) {
+  public set position(value: vec3) {
     this._position = value;
     this.recalculateViewMatrix();
   }
 
-  public set rotation(value: Vec3) {
+  public set rotation(value: vec3) {
     this._rotation = value;
     this.recalculateViewMatrix();
   }
 
-  public set scale(value: Vec3) {
+  public set scale(value: vec3) {
     this._scale = value;
     this.recalculateViewMatrix();
   }
 
   protected recalculateViewMatrix(): void {
-    this._viewMatrix = Matrix4x4.multiply(
-      Matrix4x4.multiply(
-        Matrix4x4.rotate(this._rotation),
-        Matrix4x4.translate(this._position)
-      ),
-      Matrix4x4.scale(this._scale)
-    );
-
-    this._projectionViewMatrix = Matrix4x4.multiply(
+    // TODO: investigate why angles are doubled on the view matrix
+    mat4.translate(this._viewMatrix, this._viewMatrix, this._position);
+    mat4.rotateX(
       this._viewMatrix,
-      this._projectionMatrix
+      this._viewMatrix,
+      degreesToRadians(this._rotation[0] / 2)
+    );
+    mat4.rotateY(
+      this._viewMatrix,
+      this._viewMatrix,
+      degreesToRadians(this._rotation[1] / 2)
+    );
+    mat4.rotateZ(
+      this._viewMatrix,
+      this._viewMatrix,
+      degreesToRadians(this._rotation[2] / 2)
+    );
+    mat4.scale(this._viewMatrix, this._viewMatrix, this._scale);
+
+    mat4.multiply(
+      this._projectionViewMatrix,
+      this._projectionMatrix,
+      this._viewMatrix
     );
   }
 }
@@ -98,14 +113,7 @@ class OrthographicCamera extends Camera {
     bottom: number,
     top: number
   ): void {
-    this._projectionMatrix = Matrix4x4.orthographic(
-      left,
-      right,
-      bottom,
-      top,
-      -1.0,
-      100
-    );
+    mat4.ortho(this._projectionMatrix, left, right, bottom, top, -1.0, 100);
 
     this.recalculateViewMatrix();
   }

@@ -2,10 +2,10 @@ import {LlyGL, gl} from '../gl/LlyGL';
 import {LlyShader} from '../gl/LlyShader';
 import {vertexShaderSource, fragmentShaderSource} from '../shaders/simple';
 import {GfxObject} from '../graphics/GfxObject';
-import {Vec3, Matrix4x4} from '../math/LlyMath';
 import {Camera} from '../graphics/Camera';
 import {Renderer} from '../graphics/Renderer';
 import {Color} from '../graphics/Color';
+import {vec3} from 'gl-matrix';
 
 export class WebLily {
   public static instance: WebLily | null;
@@ -61,15 +61,15 @@ export class WebLily {
     );
 
     this._sprite1 = new GfxObject(
-      new Vec3(0, 0, 0),
-      new Vec3(100, 100, 1),
-      new Vec3(0, 0, 45)
+      vec3.fromValues(0, 0, 0),
+      vec3.fromValues(100, 100, 1),
+      vec3.fromValues(0, 0, 45)
     );
 
     this._sprite2 = new GfxObject(
-      new Vec3(120, 300, 0),
-      new Vec3(300, 150, 1),
-      new Vec3(0, 0, 90)
+      vec3.fromValues(120, 300, 0),
+      vec3.fromValues(300, 150, 1),
+      vec3.fromValues(0, 0, 0)
     );
 
     this._camera = Camera.orthographic(
@@ -78,9 +78,9 @@ export class WebLily {
       -(this._canvas.height / 2),
       this._canvas.height / 2
     );
-    this._camera.position = new Vec3(0, 0, 0);
-    this._camera.rotation = new Vec3(0, 0, 67);
-    this._camera.scale = new Vec3(0.5, 1, 1);
+    this._camera.position = vec3.fromValues(10, 0, 0);
+    this._camera.rotation = vec3.fromValues(0, 0, 45);
+    this._camera.scale = vec3.fromValues(0.5, 0.5, 1);
 
     this._renderer = new Renderer();
     this._renderer.clearColor = new Color(0.2, 0.2, 0.2);
@@ -110,11 +110,12 @@ export class WebLily {
     // const colorPosition = this._shader.getUniformLocation('u_color');
     // gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
 
-    this._sprite1.rotation = new Vec3(
-      this._sprite1.rotation.x,
-      this._sprite1.rotation.y,
-      this._sprite1.rotation.z + 0.1
-    );
+    // this._sprite1.rotation = vec3.fromValues(
+    //   this._sprite1.rotation[0],
+    //   this._sprite1.rotation[1],
+    //   this._sprite1.rotation[2]
+    // );
+    // console.log(this._sprite1.rotation[0], this._sprite1.rotation[1]);
 
     this._renderer.beginScene(this._camera, this._shader);
     this._renderer.submit(this._sprite1);
@@ -166,28 +167,28 @@ export class WebLily {
     //   return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     // }
 
-    function transformPoint(m: number[], v: number[]): Vec3 {
-      const dst = new Vec3();
-      const v0 = v[0];
-      const v1 = v[1];
-      const v2 = v[2];
-      const d = v0 * m[0 * 4 + 3] + v1 * m[1 * 4 + 3] + v2 * m[2 * 4 + 3] + m[3 * 4 + 3];
-      dst.x = (v0 * m[0 * 4 + 0] + v1 * m[1 * 4 + 0] + v2 * m[2 * 4 + 0] + m[3 * 4 + 0]) / d;
-      dst.y = (v0 * m[0 * 4 + 1] + v1 * m[1 * 4 + 1] + v2 * m[2 * 4 + 1] + m[3 * 4 + 1]) / d;
-      dst.z = (v0 * m[0 * 4 + 2] + v1 * m[1 * 4 + 2] + v2 * m[2 * 4 + 2] + m[3 * 4 + 2]) / d;
-      return dst;
-    }
+    // function transformPoint(m: number[], v: number[]): Vec3 {
+    //   const dst = new Vec3();
+    //   const v0 = v[0];
+    //   const v1 = v[1];
+    //   const v2 = v[2];
+    //   const d = v0 * m[0 * 4 + 3] + v1 * m[1 * 4 + 3] + v2 * m[2 * 4 + 3] + m[3 * 4 + 3];
+    //   dst.x = (v0 * m[0 * 4 + 0] + v1 * m[1 * 4 + 0] + v2 * m[2 * 4 + 0] + m[3 * 4 + 0]) / d;
+    //   dst.y = (v0 * m[0 * 4 + 1] + v1 * m[1 * 4 + 1] + v2 * m[2 * 4 + 1] + m[3 * 4 + 1]) / d;
+    //   dst.z = (v0 * m[0 * 4 + 2] + v1 * m[1 * 4 + 2] + v2 * m[2 * 4 + 2] + m[3 * 4 + 2]) / d;
+    //   return dst;
+    // }
 
-    const trs = Matrix4x4.translate(new Vec3(canvasX, canvasY, 0));
-    const rot = Matrix4x4.translate(new Vec3(0, 0, 0));
-    const sca = Matrix4x4.translate(new Vec3(1, 1, 0));
+    // const trs = Matrix4x4.translate(new Vec3(canvasX, canvasY, 0));
+    // const rot = Matrix4x4.translate(new Vec3(0, 0, 0));
+    // const sca = Matrix4x4.translate(new Vec3(1, 1, 0));
 
-    const model = Matrix4x4.multiply(Matrix4x4.multiply(sca, rot), trs);
+    // const model = Matrix4x4.multiply(Matrix4x4.multiply(sca, rot), trs);
 
-    const newPos = transformPoint(
-      Matrix4x4.multiply(this._camera.projectionViewMatrix, model).data,
-      [clipX, clipY, 0]
-    );
+    // const newPos = transformPoint(
+    //   Matrix4x4.multiply(this._camera.projectionViewMatrix, model).data,
+    //   [clipX, clipY, 0]
+    // );
 
     // Transform device coordinates to world position
     // const scaled = Matrix4x4.multiplyVec3(
@@ -196,7 +197,7 @@ export class WebLily {
     // );
 
     // this._sprite1.position = ();
-    console.log(`${newPos.x}, ${newPos.y}`);
+    // console.log(`${newPos.x}, ${newPos.y}`);
   }
 
   public mouseUpCallback(e: MouseEvent): void {}

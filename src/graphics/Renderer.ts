@@ -1,7 +1,6 @@
 import {gl} from '../gl/LlyGL';
 import {Queue} from '../util/Util';
 import {GfxObject} from './GfxObject';
-import {Matrix4x4, Vec3} from '../math/LlyMath';
 import {LlyShader} from '../gl/LlyShader';
 import {Camera} from './Camera';
 import {Color} from './Color';
@@ -39,7 +38,7 @@ export class Renderer {
     gl.uniformMatrix4fv(
       projectionPosition,
       false,
-      this._camera.projectionViewMatrixArray
+      this._camera.projectionViewMatrix
     );
   }
 

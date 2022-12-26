@@ -2,13 +2,13 @@ import {gl} from '../gl/LlyGL';
 import {AttributeInfo, LlyBuffer} from '../gl/LlyBuffer';
 import {LlyVertexArray} from '../gl/LlyVertexArray';
 import {mat4, vec3} from 'gl-matrix';
+import {degreesToRadians} from '../math/LlyMath';
 
 export class GfxObject {
   private _scale: vec3;
   private _rotation: vec3;
   private _position: vec3;
 
-  // @ts-expect-error: is assigned in constructor but in a function
   private _modelMtx: mat4;
 
   private _buffer: LlyBuffer;
@@ -19,6 +19,8 @@ export class GfxObject {
     this._position = position;
     this._scale = scale;
     this._rotation = rotation;
+
+    this._modelMtx = mat4.create();
     this.recalculateModelMatrix();
 
     const vertices = [
@@ -140,15 +142,29 @@ export class GfxObject {
   }
 
   private recalculateModelMatrix(): void {
-    let translation: mat4, rotation: mat4, scale: mat4;
+    // let translation: mat4, rotation: mat4, scale: mat4;
 
-    mat4.translate(translation, mat4.identity, this._position);
-    mat4.translate(rotation, mat4.identity, this._position);
-    mat4.translate(scale, mat4.identity, this._position);
-
-    this._modelMtx = Matrix4x4.multiply(
-      Matrix4x4.multiply(scale, rotation),
-      translation
+    mat4.translate(this._modelMtx, this._modelMtx, this._position);
+    mat4.rotateX(
+      this._modelMtx,
+      this._modelMtx,
+      degreesToRadians(this._rotation[0])
     );
+    mat4.rotateY(
+      this._modelMtx,
+      this._modelMtx,
+      degreesToRadians(this._rotation[1])
+    );
+    mat4.rotateZ(
+      this._modelMtx,
+      this._modelMtx,
+      degreesToRadians(this._rotation[2])
+    );
+    mat4.scale(this._modelMtx, this._modelMtx, this._scale);
+
+    // this._modelMtx = Matrix4x4.multiply(
+    //   Matrix4x4.multiply(scale, rotation),
+    //   translation
+    // );
   }
 }

@@ -1,5 +1,3 @@
-import {mat4} from 'gl-matrix';
-
 export function radiansToDegrees(radians: number): number {
   return radians * (180 / Math.PI);
 }
