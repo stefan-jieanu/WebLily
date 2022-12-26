@@ -110,12 +110,23 @@ export class WebLily {
     // const colorPosition = this._shader.getUniformLocation('u_color');
     // gl.uniform4f(colorPosition, 1, 0.5, 0, 1);
 
-    // this._sprite1.rotation = vec3.fromValues(
-    //   this._sprite1.rotation[0],
-    //   this._sprite1.rotation[1],
-    //   this._sprite1.rotation[2]
-    // );
-    // console.log(this._sprite1.rotation[0], this._sprite1.rotation[1]);
+    this._sprite1.rotation = vec3.fromValues(
+      this._sprite1.rotation[0],
+      this._sprite1.rotation[1],
+      this._sprite1.rotation[2] + 0.5
+    );
+
+    this._sprite2.rotation = vec3.fromValues(
+      this._sprite2.rotation[0],
+      this._sprite2.rotation[1],
+      this._sprite2.rotation[2] + 1
+    );
+
+    this._camera.rotation = vec3.fromValues(
+      this._camera.rotation[0],
+      this._camera.rotation[1],
+      this._camera.rotation[2] - 0.2
+    );
 
     this._renderer.beginScene(this._camera, this._shader);
     this._renderer.submit(this._sprite1);

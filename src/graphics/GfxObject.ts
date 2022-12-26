@@ -144,6 +144,7 @@ export class GfxObject {
   private recalculateModelMatrix(): void {
     // let translation: mat4, rotation: mat4, scale: mat4;
 
+    mat4.identity(this._modelMtx);
     mat4.translate(this._modelMtx, this._modelMtx, this._position);
     mat4.rotateX(
       this._modelMtx,

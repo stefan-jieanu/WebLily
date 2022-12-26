@@ -14,7 +14,6 @@ export abstract class Camera {
   public constructor() {
     this._projectionMatrix = mat4.create();
     this._viewMatrix = mat4.create();
-    this._viewMatrix = mat4.identity(this._viewMatrix);
     this._projectionViewMatrix = mat4.create();
 
     this._position = vec3.create();
@@ -58,14 +57,26 @@ export abstract class Camera {
     return this._viewMatrix;
   }
 
+  public get position(): vec3 {
+    return this._position;
+  }
+
   public set position(value: vec3) {
     this._position = value;
     this.recalculateViewMatrix();
   }
 
+  public get rotation(): vec3 {
+    return this._rotation;
+  }
+
   public set rotation(value: vec3) {
     this._rotation = value;
     this.recalculateViewMatrix();
+  }
+
+  public get scale(): vec3 {
+    return this._scale;
   }
 
   public set scale(value: vec3) {
@@ -74,22 +85,23 @@ export abstract class Camera {
   }
 
   protected recalculateViewMatrix(): void {
-    // TODO: investigate why angles are doubled on the view matrix
+    mat4.identity(this._viewMatrix);
+
     mat4.translate(this._viewMatrix, this._viewMatrix, this._position);
     mat4.rotateX(
       this._viewMatrix,
       this._viewMatrix,
-      degreesToRadians(this._rotation[0] / 2)
+      degreesToRadians(this._rotation[0])
     );
     mat4.rotateY(
       this._viewMatrix,
       this._viewMatrix,
-      degreesToRadians(this._rotation[1] / 2)
+      degreesToRadians(this._rotation[1])
     );
     mat4.rotateZ(
       this._viewMatrix,
       this._viewMatrix,
-      degreesToRadians(this._rotation[2] / 2)
+      degreesToRadians(this._rotation[2])
     );
     mat4.scale(this._viewMatrix, this._viewMatrix, this._scale);
 
